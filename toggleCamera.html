@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Toggle</title>
+</head>
+<body>
+  <video id="videoElement" autoplay></video>
+  <button id="toggleCameraBtn">Toggle Camera</button>
+  
+  <script>
+    let videoStream;
+    let isFacingEnvironment = true; // Flag to track the camera mode
+
+    const videoElement = document.getElementById('videoElement');
+    const toggleCameraBtn = document.getElementById('toggleCameraBtn');
+
+    toggleCameraBtn.addEventListener('click', toggleCamera);
+
+    function toggleCamera() {
+      isFacingEnvironment = !isFacingEnvironment; // Toggle the camera mode
+
+      // Close the current stream if it exists
+      if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+      }
+
+      requestCameraAccess();
+    }
+
+    function requestCameraAccess() {
+      navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: isFacingEnvironment ? 'environment' : 'user', // Use the environment-facing camera or user-facing camera
+        },
+      }).then(function(stream) {
+        videoElement.srcObject = stream;
+        videoStream = stream;
+        videoElement.onloadedmetadata = function() {
+          videoElement.play();
+        };
+      }).catch(function(err) {
+        console.error('The following error occurred: ' + err);
+        alert('Please provide video camera permission to capture the document image');
+      });
+    }
+
+    // Initial request for camera access
+    requestCameraAccess();
+  </script>
+</body>
+</html>
